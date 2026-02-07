@@ -4,18 +4,18 @@ import 'screens/camera_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Get available cameras
   final cameras = await availableCameras();
-  
+
   runApp(PixelCameraApp(cameras: cameras));
 }
 
 class PixelCameraApp extends StatelessWidget {
   final List<CameraDescription> cameras;
-  
-  const PixelCameraApp({Key? key, required this.cameras}) : super(key: key);
-  
+
+  const PixelCameraApp({super.key, required this.cameras});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

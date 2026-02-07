@@ -10,9 +10,9 @@ import '../filters/filter_base.dart';
 
 class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
-  
-  const CameraScreen({Key? key, required this.cameras}) : super(key: key);
-  
+
+  const CameraScreen({super.key, required this.cameras});
+
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
@@ -20,12 +20,12 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  
+
   final FilterManager _filterManager = FilterManager();
   int _selectedFilterIndex = 0;
   bool _isFilterPreviewEnabled = false;
   bool _isProcessing = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -37,46 +37,46 @@ class _CameraScreenState extends State<CameraScreen> {
     _initializeControllerFuture = _controller.initialize();
     _requestPermissions();
   }
-  
+
   Future<void> _requestPermissions() async {
     await [
       Permission.camera,
       Permission.storage,
     ].request();
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   Future<void> _takePicture() async {
     if (_isProcessing) return;
-    
+
     setState(() => _isProcessing = true);
-    
+
     try {
       await _initializeControllerFuture;
       final image = await _controller.takePicture();
-      
+
       // Load the image
       final bytes = await File(image.path).readAsBytes();
       img.Image? originalImage = img.decodeImage(bytes);
-      
+
       if (originalImage != null) {
         // Apply filter if selected
         final filter = _filterManager.getFilter(_selectedFilterIndex);
         final filteredImage = filter.apply(originalImage);
-        
+
         // Save the filtered image
         final directory = await getApplicationDocumentsDirectory();
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final path = '${directory.path}/pixel_camera_$timestamp.jpg';
-        
+
         final encodedImage = img.encodeJpg(filteredImage, quality: 95);
         await File(path).writeAsBytes(encodedImage);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Photo saved: $path')),
@@ -93,7 +93,7 @@ class _CameraScreenState extends State<CameraScreen> {
       setState(() => _isProcessing = false);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +108,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 Positioned.fill(
                   child: CameraPreview(_controller),
                 ),
-                
+
                 // Top bar with filter toggle
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 16,
@@ -135,21 +135,24 @@ class _CameraScreenState extends State<CameraScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isFilterPreviewEnabled = !_isFilterPreviewEnabled;
+                                  _isFilterPreviewEnabled =
+                                      !_isFilterPreviewEnabled;
                                 });
                               },
                             ),
                             Padding(
                               padding: const EdgeInsets.only(right: 12),
                               child: Text(
-                                _isFilterPreviewEnabled ? 'Preview ON' : 'Preview OFF',
+                                _isFilterPreviewEnabled
+                                    ? 'Preview ON'
+                                    : 'Preview OFF',
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       // Info icon
                       Container(
                         decoration: BoxDecoration(
@@ -157,7 +160,8 @@ class _CameraScreenState extends State<CameraScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.info_outline, color: Colors.white),
+                          icon: const Icon(Icons.info_outline,
+                              color: Colors.white),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -182,7 +186,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Filter selection carousel
                 Positioned(
                   bottom: 120,
@@ -197,7 +201,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       itemBuilder: (context, index) {
                         final filter = _filterManager.filters[index];
                         final isSelected = index == _selectedFilterIndex;
-                        
+
                         return GestureDetector(
                           onTap: () {
                             setState(() => _selectedFilterIndex = index);
@@ -209,7 +213,9 @@ class _CameraScreenState extends State<CameraScreen> {
                               color: Colors.black54,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? Colors.blue : Colors.transparent,
+                                color: isSelected
+                                    ? Colors.blue
+                                    : Colors.transparent,
                                 width: 3,
                               ),
                             ),
@@ -218,16 +224,20 @@ class _CameraScreenState extends State<CameraScreen> {
                               children: [
                                 Icon(
                                   Icons.filter,
-                                  color: isSelected ? Colors.blue : Colors.white,
+                                  color:
+                                      isSelected ? Colors.blue : Colors.white,
                                   size: 32,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   filter.name,
                                   style: TextStyle(
-                                    color: isSelected ? Colors.blue : Colors.white,
+                                    color:
+                                        isSelected ? Colors.blue : Colors.white,
                                     fontSize: 12,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -239,7 +249,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Capture button
                 Positioned(
                   bottom: 32,
@@ -260,7 +270,8 @@ class _CameraScreenState extends State<CameraScreen> {
                             ? const Padding(
                                 padding: EdgeInsets.all(16),
                                 child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black),
                                 ),
                               )
                             : const Icon(
@@ -272,7 +283,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Current filter name
                 Positioned(
                   bottom: 220,
@@ -280,7 +291,8 @@ class _CameraScreenState extends State<CameraScreen> {
                   right: 0,
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.black54,
                         borderRadius: BorderRadius.circular(20),
